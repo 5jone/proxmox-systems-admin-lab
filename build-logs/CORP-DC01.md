@@ -1,104 +1,104 @@
-\# CORP-DC01
+# CORP-DC01
 
 
 
-\## Status
+## Status
 
 Installed, network pending
 
 
 
-\## Platform
+## Platform
 
-\- Hypervisor: Proxmox VE
+- Hypervisor: Proxmox VE
 
-\- VM ID: 1521
+- VM ID: 1521
 
-\- Operating System: Windows Server 2022 Standard Desktop Experience
+- Operating System: Windows Server 2022 Standard Desktop Experience
 
-\- Role: Planned Domain Controller
+- Role: Planned Domain Controller
 
-\- Network: Disconnected pending Chapter 3
-
-
-
-\## Virtual Hardware
-
-\- Machine: q35
-
-\- Firmware: OVMF / UEFI
-
-\- Disk Controller: VirtIO SCSI Single
-
-\- System Disk: 64 GB
-
-\- Disk Storage: EricOStore
-
-\- Disk Format: qcow2
-
-\- QEMU Guest Agent: Enabled
+- Network: Disconnected pending Chapter 3
 
 
 
-\## Build Log
+## Virtual Hardware
+
+- Machine: q35
+
+- Firmware: OVMF / UEFI
+
+- Disk Controller: VirtIO SCSI Single
+
+- System Disk: 64 GB
+
+- Disk Storage: EricOStore
+
+- Disk Format: qcow2
+
+- QEMU Guest Agent: Enabled
 
 
 
-\### 2026-10-04
-
-\- Created VM 1521
-
-\- Installed Windows Server 2022
-
-\- Loaded VirtIO storage drivers
-
-\- Installed NetKVM network driver
-
-\- Installed QEMU Guest Agent
-
-\- Renamed Windows host to CORP-DC01
-
-\- Set system disk first in boot order
-
-\- Ejected Windows Server installation ISO
-
-\- Verified successful boot from scsi0
-
-\- Network intentionally left disconnected
+## Build Log
 
 
 
-\## Validation
+### 2026-10-04
 
-\- \[x] Boots from system disk
+- Created VM 1521
 
-\- \[x] Computer name is CORP-DC01
+- Installed Windows Server 2022
 
-\- \[x] Windows Server installation verified
+- Loaded VirtIO storage drivers
 
-\- \[x] Network remains disconnected
+- Installed NetKVM network driver
 
-\- \[x] Verify Device Manager is clean
+- Installed QEMU Guest Agent
 
-\- \[x] Verify QEMU Guest Agent service is running
+- Renamed Windows host to CORP-DC01
+
+- Set system disk first in boot order
+
+- Ejected Windows Server installation ISO
+
+- Verified successful boot from scsi0
+
+- Network intentionally left disconnected
 
 
 
-\## Evidence
+## Validation
+
+- [x] Boots from system disk
+
+- [x] Computer name is CORP-DC01
+
+- [x] Windows Server installation verified
+
+- [x] Network remains disconnected
+
+- [x] Verify Device Manager is clean
+
+- [x] Verify QEMU Guest Agent service is running
+
+
+
+## Evidence
 
 See `/screenshots/CORP-DC01/`
 
 
 
-\## Next
+## Next
 
-\- Complete Chapter 3 isolated network deployment
+- Complete Chapter 3 isolated network deployment
 
-\- Attach CORP-DC01 only to the corporate internal bridge
+- Attach CORP-DC01 only to the corporate internal bridge
 
-\- Patch Windows Server
+- Patch Windows Server
 
-\- Continue Chapter 4 IP addressing
+- Continue Chapter 4 IP addressing
 
 \- Continue Chapter 5 Active Directory Domain Services promotion
 
