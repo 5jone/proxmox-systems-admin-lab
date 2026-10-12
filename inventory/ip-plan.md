@@ -8,8 +8,8 @@ Exact IP addresses are intentionally omitted. The purpose of this file is to doc
 
 | Host / Service | Addressing Model | Purpose | Status |
 | --- | --- | --- | --- |
-| Existing infrastructure | Pre-existing | Gateway and bootstrap network services | Existing |
-| CORP-DC01 | Reserved static IPv4 | First Domain Controller and DNS server | Active |
+| Existing infrastructure | Pre-existing | Gateway, bootstrap DHCP, and approved upstream DNS forwarding target | Existing |
+| CORP-DC01 | Reserved static IPv4 | First Domain Controller and authoritative DNS server | Active / promoted |
 | CORP-DC02 | Reserved static IPv4 | Second Domain Controller and DNS replica | Planned |
 | PARTNER-DC01 | Reserved static IPv4 | Partner directory services | Planned |
 | BRANCH-DC01 | Reserved static IPv4 | Additional Domain Controller / replica role | Planned |
@@ -28,13 +28,21 @@ Exact IP addresses are intentionally omitted. The purpose of this file is to doc
 
 ## DNS Plan
 
-CORP-DC01 currently uses the existing infrastructure resolver only for bootstrap.
+CORP-DC01 has completed its transition from bootstrap DNS to internal Active Directory DNS.
 
-Before promotion as the first Domain Controller and internal DNS server, its DNS client configuration will transition to its own DNS service.
+Current state:
 
-After the second Domain Controller is deployed, corporate members will use the internal Domain Controllers as their DNS servers.
+- CORP-DC01 uses its own local DNS service as its client resolver.
+- CORP-DC01 is authoritative for `corp.example.test`.
+- Active Directory SRV records are registered and resolve successfully.
+- External names are forwarded to the approved existing infrastructure resolver.
+- No public resolver is configured directly on the Domain Controller's network adapter.
 
-External name resolution will be handled through DNS forwarding rather than by assigning public resolvers directly to Domain Controllers or Active Directory member systems.
+Planned next state:
+
+- CORP-DC02 will use CORP-DC01 for DNS while joining and promoting.
+- CORP-DC02 will also host DNS after promotion.
+- Once both Domain Controllers are healthy, corporate member systems will use the two internal Domain Controllers as their DNS servers.
 
 ## DHCP Plan
 
