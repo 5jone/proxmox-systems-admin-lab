@@ -11,11 +11,13 @@ This public repository is intentionally sanitized. Exact host IP addresses, gate
 - VLAN: 152
 - Endpoint network: assigned private /24 subnet
 - Guest NIC VLAN tag: blank by design because VLAN membership is provided by the VNet
-- Current server: `CORP-DC01`
+- Current identity server: `CORP-DC01`
 - Operating system: Windows Server 2022 Standard Desktop Experience
-- Planned role: first Active Directory Domain Services (AD DS) Domain Controller and internal DNS server
+- Current role: first Active Directory Domain Services (AD DS) Domain Controller and authoritative DNS server
+- Forest / domain: `corp.example.test`
+- NetBIOS name: `CORP`
 
-The existing environment provides bootstrap gateway, DNS, and DHCP services. Those services are being used only to establish and validate initial connectivity. The completed lab will transition to internal Active Directory-integrated DNS and dedicated Windows DHCP services.
+The existing environment still provides the off-subnet gateway and the approved upstream DNS resolver. CORP-DC01 now uses its own internal DNS service for Active Directory resolution and forwards unresolved external queries to the approved upstream resolver.
 
 ## Current Milestones
 
@@ -31,13 +33,20 @@ The existing environment provides bootstrap gateway, DNS, and DHCP services. Tho
 | Default gateway path validated | Complete |
 | Bootstrap DNS resolution validated | Complete |
 | Outbound TCP/443 connectivity validated | Complete |
-| Active Directory Domain Services and DNS promotion | Next |
+| Windows patching completed before promotion | Complete |
+| CORP-DC01 memory increased to 8 GiB fixed | Complete |
+| AD DS role installed | Complete |
+| New forest and root domain created | Complete |
+| DNS installed on CORP-DC01 | Complete |
+| AD SRV discovery validated | Complete |
+| External DNS forwarding validated | Complete |
+| CORP-DC02 replica build and promotion | Next |
 
 ## Validation Approach
 
 Configuration is not treated as complete until it is verified.
 
-For the current CORP-DC01 networking milestone, validation included:
+For CORP-DC01, validation has included:
 
 - Confirming the Windows VirtIO network adapter was detected correctly.
 - Matching the virtual NIC identity between Proxmox and Windows.
@@ -45,8 +54,11 @@ For the current CORP-DC01 networking milestone, validation included:
 - Disabling DHCP and confirming the previous lease was removed.
 - Applying the reserved static configuration.
 - Confirming the Windows address state became `Preferred`.
-- Validating DNS resolution through the bootstrap resolver.
-- Validating outbound HTTPS connectivity using a TCP port 443 test.
+- Validating gateway reachability and outbound HTTPS connectivity.
+- Completing Windows servicing before directory promotion.
+- Confirming the promoted domain reports the expected DNS root, functional level, and PDC Emulator.
+- Verifying the LDAP Domain Controller discovery SRV record resolves to CORP-DC01.
+- Verifying external DNS resolution through the configured forwarder.
 
 See [CORP-DC01 build log](build-logs/CORP-DC01.md) for the detailed implementation record.
 
