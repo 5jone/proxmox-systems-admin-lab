@@ -10,7 +10,7 @@ Exact IP addresses are intentionally omitted. The purpose of this file is to doc
 | --- | --- | --- | --- |
 | Existing infrastructure | Pre-existing | Gateway, bootstrap DHCP, and approved upstream DNS forwarding target | Existing |
 | CORP-DC01 | Reserved static IPv4 | First Domain Controller and authoritative DNS server | Active / promoted |
-| CORP-DC02 | Reserved static IPv4 | Second Domain Controller and DNS replica | Planned |
+| CORP-DC02 | Reserved static IPv4 | Second Domain Controller and DNS replica | VM provisioned / address not yet applied |
 | PARTNER-DC01 | Reserved static IPv4 | Partner directory services | Planned |
 | BRANCH-DC01 | Reserved static IPv4 | Additional Domain Controller / replica role | Planned |
 | CORP-FS01 | Reserved static IPv4 | File services | Planned |
@@ -40,7 +40,7 @@ Current state:
 
 Planned next state:
 
-- CORP-DC02 will use CORP-DC01 for DNS while joining and promoting.
+- CORP-DC02 has been provisioned and will use CORP-DC01 for DNS after Windows installation and before domain join/promotion.
 - CORP-DC02 will also host DNS after promotion.
 - Once both Domain Controllers are healthy, corporate member systems will use the two internal Domain Controllers as their DNS servers.
 
