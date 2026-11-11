@@ -45,7 +45,7 @@
           </div>
           <div class="status-line" aria-label="Current project status">
             <span class="status-dot" aria-hidden="true"></span>
-            <span><strong>Current milestone:</strong> First Domain Controller and authoritative DNS validated</span>
+            <span><strong>Current milestone:</strong> CORP-DC01 validated; CORP-DC02 virtual hardware provisioned</span>
           </div>
         </div>
 
@@ -121,9 +121,9 @@
               <small>AD DS · DNS · PDC Emulator</small>
             </div>
             <div class="arch-node arch-planned">
-              <span class="arch-label">Next</span>
+              <span class="arch-label">In progress</span>
               <strong>CORP-DC02</strong>
-              <small>Replica DC · DNS</small>
+              <small>VM provisioned · Windows Server install next</small>
             </div>
           </div>
           <div class="arch-upstream">
@@ -226,10 +226,24 @@
           <p>The site summarizes completed work. The repository preserves the detailed technical record.</p>
         </div>
 
+        <div class="evidence-gallery" aria-label="Selected implementation evidence">
+          <a class="evidence-shot" href="https://github.com/5jone/proxmox-systems-admin-lab/blob/main/screenshots/CORP-DCO1/03-device-manager-clean.png">
+            <img src="https://raw.githubusercontent.com/5jone/proxmox-systems-admin-lab/main/screenshots/CORP-DCO1/03-device-manager-clean.png" alt="Windows Server Device Manager showing a clean virtual hardware installation" loading="lazy">
+            <span>Guest validation</span>
+            <strong>Device Manager clean after VirtIO installation</strong>
+          </a>
+          <a class="evidence-shot" href="https://github.com/5jone/proxmox-systems-admin-lab/blob/main/screenshots/CORP-DCO1/05-windows-server-installed.png">
+            <img src="https://raw.githubusercontent.com/5jone/proxmox-systems-admin-lab/main/screenshots/CORP-DCO1/05-windows-server-installed.png" alt="Windows Server 2022 base installation running inside the lab" loading="lazy">
+            <span>Base deployment</span>
+            <strong>Windows Server 2022 installation milestone</strong>
+          </a>
+        </div>
+        <p class="evidence-note">Only selected captures that avoid live addressing and account identifiers are surfaced on the portfolio page.</p>
+
         <div class="evidence-grid">
           <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab"><span>Repository</span><strong>Full technical evidence</strong><small>README, commits, source structure</small></a>
           <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab/tree/main/build-logs"><span>Build Logs</span><strong>Implementation history</strong><small>What changed, why, and how it was validated</small></a>
-          <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab/tree/main/screenshots/CORP-DC01"><span>Screenshots</span><strong>Selected visual evidence</strong><small>Sanitized implementation and validation captures</small></a>
+          <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab/tree/main/screenshots"><span>Screenshots</span><strong>Selected visual evidence</strong><small>Implementation and validation captures</small></a>
           <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab/tree/main/inventory"><span>Inventory</span><strong>Logical source of truth</strong><small>Servers, network design, addressing model</small></a>
         </div>
       </div>
@@ -243,7 +257,7 @@
         </div>
         <div class="roadmap">
           <span class="done">CORP-DC01</span>
-          <span class="active">CORP-DC02 replication</span>
+          <span class="active">CORP-DC02 build</span>
           <span>Group Policy</span>
           <span>File services</span>
           <span>DHCP failover</span>
