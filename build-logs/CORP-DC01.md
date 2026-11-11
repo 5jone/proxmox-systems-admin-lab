@@ -177,7 +177,7 @@ A successful SRV response identifying CORP-DC01 and LDAP over TCP port 389 is st
 
 ## Evidence
 
-See `/screenshots/CORP-DC01/`.
+See the public `/screenshots/` directory for selected sanitized evidence.
 
 Evidence for the current milestone should demonstrate:
 
@@ -197,7 +197,7 @@ Any screenshots used in the public repository should redact exact IP addresses, 
 
 ## Next
 
-- Build CORP-DC02 with Windows Server 2022 and the approved EOVLAN attachment.
+- Complete the Windows Server 2022 installation on the already-provisioned CORP-DC02 virtual machine.
 - Configure CORP-DC02 with a reserved static address and CORP-DC01 as its DNS server before promotion.
 - Verify Active Directory SRV discovery from CORP-DC02.
 - Promote CORP-DC02 as an additional Domain Controller and DNS replica.
