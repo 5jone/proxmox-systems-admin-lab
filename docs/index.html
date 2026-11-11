@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interview-facing portfolio for a Proxmox systems administration lab covering Windows Server, Active Directory, DNS, PowerShell, validation, troubleshooting, and recovery.">
+  <title>Proxmox Systems Administration Lab</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script defer src="assets/js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="shell nav-wrap">
+      <a class="brand" href="#top" aria-label="Proxmox Systems Administration Lab home">
+        <span class="brand-mark" aria-hidden="true">&gt;_</span>
+        <span>Systems Administration Lab</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
+        <a href="#architecture">Architecture</a>
+        <a href="#milestone">Milestone</a>
+        <a href="#validation">Validation</a>
+        <a href="#recovery">Troubleshooting</a>
+        <a href="#evidence">Evidence</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="top" class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <p class="eyebrow">Systems Administration Portfolio</p>
+          <h1>Proxmox Systems Administration Lab</h1>
+          <p class="hero-copy">
+            An evidence-driven lab for practicing Windows Server, Active Directory, DNS,
+            virtualization, automation, troubleshooting, and recovery. The presentation
+            stays concise; the linked GitHub repository contains the technical proof.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#architecture">View Architecture</a>
+            <a class="button button-secondary" href="https://github.com/5jone/proxmox-systems-admin-lab">Technical Repository</a>
+          </div>
+          <div class="status-line" aria-label="Current project status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span><strong>Current milestone:</strong> First Domain Controller and authoritative DNS validated</span>
+          </div>
+        </div>
+
+        <aside class="hero-panel" aria-label="Current stack">
+          <p class="panel-kicker">Current stack</p>
+          <div class="chip-grid">
+            <span>Proxmox VE</span>
+            <span>Windows Server 2022</span>
+            <span>AD DS</span>
+            <span>DNS</span>
+            <span>PowerShell</span>
+            <span>VirtIO</span>
+            <span>QEMU Guest Agent</span>
+            <span>GitHub</span>
+          </div>
+          <p class="panel-note">
+            Public documentation is intentionally sanitized. Live infrastructure addresses,
+            MAC addresses, credentials, and other environment-specific identifiers are omitted.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section section-muted" aria-labelledby="overview-title">
+      <div class="shell two-column">
+        <div>
+          <p class="eyebrow">Overview</p>
+          <h2 id="overview-title">Built to be explained, tested, and defended</h2>
+        </div>
+        <div class="prose">
+          <p>
+            The lab is designed around operational proof rather than role installation alone.
+            A component is not treated as complete until its configuration, behavior, and
+            recovery path can be validated and explained.
+          </p>
+          <p>
+            The repository is the evidence layer: build logs, inventory, screenshots,
+            scripts, validation results, and commit history. This site is the interview-facing
+            presentation layer.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="section" aria-labelledby="architecture-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Architecture</p>
+          <h2 id="architecture-title">Current primary topology</h2>
+          <p>
+            The primary build uses the administrator-managed EOVLAN attachment. VLAN membership
+            is supplied by the virtual network, so guest NIC VLAN tags remain blank.
+          </p>
+        </div>
+
+        <div class="architecture" role="img" aria-label="Sanitized architecture showing Proxmox VE connected to EOVLAN, CORP-DC01, a planned CORP-DC02 replica, and approved upstream infrastructure for off-subnet and forwarded DNS traffic.">
+          <div class="arch-node arch-platform">
+            <span class="arch-label">Virtualization</span>
+            <strong>Proxmox VE</strong>
+            <small>q35 · OVMF/UEFI · VirtIO</small>
+          </div>
+          <div class="arch-line" aria-hidden="true"></div>
+          <div class="arch-node arch-network">
+            <span class="arch-label">Layer 2</span>
+            <strong>EOVLAN · VLAN 152</strong>
+            <small>Assigned private /24 endpoint network</small>
+          </div>
+          <div class="arch-branch" aria-hidden="true"></div>
+          <div class="arch-services">
+            <div class="arch-node arch-active">
+              <span class="arch-label">Validated</span>
+              <strong>CORP-DC01</strong>
+              <small>AD DS · DNS · PDC Emulator</small>
+            </div>
+            <div class="arch-node arch-planned">
+              <span class="arch-label">Next</span>
+              <strong>CORP-DC02</strong>
+              <small>Replica DC · DNS</small>
+            </div>
+          </div>
+          <div class="arch-upstream">
+            <span class="arch-arrow" aria-hidden="true">↕</span>
+            <div class="arch-node arch-external">
+              <span class="arch-label">Owner-managed infrastructure</span>
+              <strong>Gateway + approved DNS forwarder</strong>
+              <small>Used for off-subnet traffic and external name resolution</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Design boundary:</strong>
+          AD DS and internal DNS are lab-managed. The off-subnet gateway and upstream resolver
+          remain owner-managed infrastructure. The optional lab firewall and isolated routed
+          networks are later exercises, not part of the current primary path.
+        </div>
+      </div>
+    </section>
+
+    <section id="milestone" class="section section-muted" aria-labelledby="milestone-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Completed Milestone</p>
+          <h2 id="milestone-title">CORP-DC01 — first Domain Controller</h2>
+          <p>
+            Windows Server 2022 was built, patched, promoted into a new Active Directory forest,
+            and validated as the authoritative DNS server for the lab domain.
+          </p>
+        </div>
+
+        <div class="card-grid">
+          <article class="card">
+            <span class="card-number">01</span>
+            <h3>Guest baseline</h3>
+            <p>Configured q35, OVMF/UEFI, VirtIO storage/networking, QEMU Guest Agent, fixed memory, and a reserved static IPv4 configuration.</p>
+          </article>
+          <article class="card">
+            <span class="card-number">02</span>
+            <h3>AD DS promotion</h3>
+            <p>Installed Active Directory Domain Services with PowerShell and created the <code>corp.example.test</code> forest and root domain.</p>
+          </article>
+          <article class="card">
+            <span class="card-number">03</span>
+            <h3>Authoritative DNS</h3>
+            <p>Transitioned the Domain Controller to its own internal DNS service and configured an approved upstream forwarder for external names.</p>
+          </article>
+          <article class="card">
+            <span class="card-number">04</span>
+            <h3>Service discovery</h3>
+            <p>Validated LDAP Domain Controller discovery through Active Directory SRV records instead of relying only on a successful reboot.</p>
+          </article>
+        </div>
+
+        <div class="evidence-row">
+          <a href="https://github.com/5jone/proxmox-systems-admin-lab/blob/main/build-logs/CORP-DC01.md">CORP-DC01 Build Log →</a>
+          <a href="https://github.com/5jone/proxmox-systems-admin-lab/blob/main/inventory/servers.md">Server Inventory →</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="validation" class="section" aria-labelledby="validation-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Validation</p>
+          <h2 id="validation-title">Configuration is not complete until behavior is proven</h2>
+        </div>
+
+        <div class="validation-grid">
+          <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>Virtual NIC identity</h3><p>Matched the Proxmox virtual NIC to the Windows VirtIO adapter before changing network configuration.</p></div></div>
+          <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>Static addressing</h3><p>Observed bootstrap DHCP behavior, disabled DHCP, removed the previous lease, and verified the reserved address reached the Windows <code>Preferred</code> state.</p></div></div>
+          <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>AD service discovery</h3><p>Queried the LDAP SRV record used to locate Domain Controllers and confirmed CORP-DC01 was advertised correctly.</p></div></div>
+          <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>External DNS forwarding</h3><p>Confirmed public names resolve through the configured forwarder while the Domain Controller remains authoritative for its internal namespace.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="recovery" class="section section-muted" aria-labelledby="recovery-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Troubleshooting & Recovery</p>
+          <h2 id="recovery-title">A real servicing failure became part of the evidence</h2>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-step"><span>Symptom</span><p>Windows Server stalled during a servicing restart while stopping the Update Orchestrator Service.</p></div>
+          <div class="timeline-step"><span>Investigation</span><p>Proxmox task history showed a reboot timeout and later power actions failing because the VM lock was still held.</p></div>
+          <div class="timeline-step"><span>Recovery</span><p>After the original task released, the guest was recovered with the noVNC Hard Stop action and Windows servicing was allowed to complete.</p></div>
+          <div class="timeline-step"><span>Improvement</span><p>Observed memory pressure informed an evidence-based resize from the original conservative 4 GiB baseline to 8 GiB fixed memory before AD DS promotion.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" class="section" aria-labelledby="evidence-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence</p>
+          <h2 id="evidence-title">Presentation here. Proof in the repository.</h2>
+          <p>The site summarizes completed work. The repository preserves the detailed technical record.</p>
+        </div>
+
+        <div class="evidence-grid">
+          <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab"><span>Repository</span><strong>Full technical evidence</strong><small>README, commits, source structure</small></a>
+          <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab/tree/main/build-logs"><span>Build Logs</span><strong>Implementation history</strong><small>What changed, why, and how it was validated</small></a>
+          <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab/tree/main/screenshots/CORP-DC01"><span>Screenshots</span><strong>Selected visual evidence</strong><small>Sanitized implementation and validation captures</small></a>
+          <a class="evidence-card" href="https://github.com/5jone/proxmox-systems-admin-lab/tree/main/inventory"><span>Inventory</span><strong>Logical source of truth</strong><small>Servers, network design, addressing model</small></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-roadmap" aria-labelledby="roadmap-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="eyebrow">Roadmap</p>
+          <h2 id="roadmap-title">The site will grow only as the lab evidence grows</h2>
+        </div>
+        <div class="roadmap">
+          <span class="done">CORP-DC01</span>
+          <span class="active">CORP-DC02 replication</span>
+          <span>Group Policy</span>
+          <span>File services</span>
+          <span>DHCP failover</span>
+          <span>PKI</span>
+          <span>Rocky Linux</span>
+          <span>Automation</span>
+          <span>STIG / SCC</span>
+          <span>Backup & recovery</span>
+          <span>Platform extensions</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div><strong>Proxmox Systems Administration Lab</strong><p>Independent hands-on lab work documented for technical interviews.</p></div>
+      <div><a href="https://github.com/5jone/proxmox-systems-admin-lab">GitHub Repository</a><span> · </span><a href="#top">Back to top</a></div>
+    </div>
+  </footer>
+</body>
+</html>
