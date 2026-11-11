@@ -13,7 +13,7 @@ This public inventory documents the network design while intentionally omitting 
 | CORP-DC01 DNS client | Local authoritative DNS service |
 | External DNS path | Forwarded to approved infrastructure resolver |
 | Guest NIC VLAN tag | Blank |
-| Current connected server | `CORP-DC01` |
+| Current attached servers | `CORP-DC01`; `CORP-DC02` VM provisioned |
 
 ## Design Notes
 
@@ -53,7 +53,7 @@ This separates two responsibilities:
 - internal Active Directory name and service discovery, handled by CORP-DC01;
 - external name resolution, handled through the configured forwarder.
 
-The next replica Domain Controller will use CORP-DC01 for DNS during domain discovery and promotion. After both controllers are operational, corporate systems will use the internal Domain Controllers as their DNS servers.
+CORP-DC02 has now been provisioned on EOVLAN. After Windows installation, it will use CORP-DC01 for DNS during domain discovery and promotion. After both controllers are operational, corporate systems will use the internal Domain Controllers as their DNS servers.
 
 ### Future DHCP design
 
