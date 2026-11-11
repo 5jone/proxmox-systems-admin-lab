@@ -2,6 +2,8 @@
 
 Hands-on systems administration portfolio lab built on Proxmox VE to practice Windows Server, Linux, networking, identity, infrastructure services, automation, security hardening, validation, and operational documentation.
 
+**Interview-facing portfolio site:** https://5jone.github.io/proxmox-systems-admin-lab/
+
 This public repository is intentionally sanitized. Exact host IP addresses, gateway addresses, DNS resolver addresses, MAC addresses, and other live environment identifiers are omitted while preserving the technical design and validation process.
 
 ## Current Architecture
@@ -40,7 +42,9 @@ The existing environment still provides the off-subnet gateway and the approved 
 | DNS installed on CORP-DC01 | Complete |
 | AD SRV discovery validated | Complete |
 | External DNS forwarding validated | Complete |
-| CORP-DC02 replica build and promotion | Next |
+| CORP-DC02 virtual machine provisioned | Complete |
+| Windows Server 2022 installation on CORP-DC02 | Next |
+| CORP-DC02 replica promotion and replication validation | Planned |
 
 ## Validation Approach
 
@@ -64,6 +68,7 @@ See [CORP-DC01 build log](build-logs/CORP-DC01.md) for the detailed implementati
 
 ## Repository Structure
 
+- `docs/` — GitHub Pages interview-facing presentation site
 - `build-logs/` — chronological implementation records
 - `inventory/` — sanitized server, network, and logical addressing documentation
 - `screenshots/` — implementation and validation evidence
