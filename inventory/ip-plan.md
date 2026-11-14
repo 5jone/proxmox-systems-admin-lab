@@ -1,74 +1,57 @@
-# Logical IP Address Plan
+# Logical Address Plan
 
-This is the public, sanitized version of the lab addressing plan.
+This is the public, sanitized version of the Azure lab addressing plan. Exact live addresses are intentionally omitted from the public repository.
 
-Exact IP addresses are intentionally omitted. The purpose of this file is to document address ownership, role separation, and allocation strategy without publishing the live addressing details of the environment.
+## Corporate Addressing Model
+
+The active Azure design uses a corporate Virtual Network (VNet) with separate subnets for:
+
+- core infrastructure
+- administration/management
+- clients
+- general workloads
+
+Infrastructure services receive reserved private addresses through Azure network interface configuration. Guest operating systems remain DHCP-managed so they retain Azure platform gateway behavior.
 
 ## Static Infrastructure Roles
 
 | Host / Service | Addressing Model | Purpose | Status |
 | --- | --- | --- | --- |
-| Existing infrastructure | Pre-existing | Gateway, bootstrap DHCP, and approved upstream DNS forwarding target | Existing |
-| CORP-DC01 | Reserved static IPv4 | First Domain Controller and authoritative DNS server | Active / promoted |
-| CORP-DC02 | Reserved static IPv4 | Second Domain Controller, DNS replica, and Global Catalog | Active / promoted |
-| CORP-NTP01 | Reserved static IPv4 | Internal Rocky Linux chrony/NTP server | Planned / next |
-| CORP-NTP02 | Reserved static IPv4 | Redundant Rocky Linux chrony/NTP server | Planned / next |
-| PARTNER-DC01 | Reserved static IPv4 | Partner directory services | Planned |
-| BRANCH-DC01 | Reserved static IPv4 | Additional Domain Controller / replica role | Planned |
-| CORP-FS01 | Reserved static IPv4 | File services | Planned |
-| CORP-CA01 | Reserved static IPv4 | Certificate services / Public Key Infrastructure | Planned |
-| CORP-OPS01 | Reserved static IPv4 | Operations and management services | Planned |
-| CORP-WSUS01 | Reserved static IPv4 | Windows Server Update Services | Planned |
-| CORP-DHCP01 | Reserved static IPv4 | Primary Windows DHCP server | Planned |
-| CORP-DHCP02 | Reserved static IPv4 | DHCP failover peer | Planned |
-| ROCKY-APP01 | Reserved static IPv4 | Rocky Linux application host | Planned |
-| ROCKY-AUTO01 | Reserved static IPv4 | Rocky Linux automation host | Planned |
-| CORP-ADM01 | Reserved static IPv4 | Administrative workstation | Planned |
-| PARTNER-CL01 | Reserved/static as required | Partner client | Planned |
-| BRANCH-CL01 | Reserved/static as required | Branch client | Planned |
-| Corporate client pool | DHCP scope | Future client lease range | Planned / inactive |
+| CORP-DC01 | Azure NIC reserved private IPv4 | First Domain Controller / DNS | Planned Azure rebuild |
+| CORP-DC02 | Azure NIC reserved private IPv4 | Replica Domain Controller / DNS / Global Catalog | Planned Azure rebuild |
+| CORP-NTP01 | Azure NIC reserved private IPv4 | Internal RHEL 9 chrony/NTP server | Planned |
+| CORP-NTP02 | Azure NIC reserved private IPv4 | Redundant RHEL 9 chrony/NTP server | Planned |
+| CORP-FS01 | Azure NIC reserved private IPv4 | File services | Planned |
+| CORP-CA01 | Azure NIC reserved private IPv4 | Certificate services / PKI | Planned |
+| CORP-OPS01 | Azure NIC reserved private IPv4 | Operations services | Planned |
+| CORP-ADM01 | Azure NIC reserved private IPv4 | Administrative host | Planned |
+| ROCKY-APP01 | Azure NIC reserved private IPv4 | Rocky Linux application host | Planned |
+| PARTNER-DC01 | Azure NIC reserved private IPv4 | Partner forest directory services | Planned |
+| PARTNER-CL01 | Azure private address | Partner client/member | Planned |
 
 ## DNS Plan
 
-CORP-DC01 has completed its transition from bootstrap DNS to internal Active Directory DNS.
+The Azure build preserves the validated AD DNS design while changing the network implementation.
 
-Current state:
+Planned state:
 
-- CORP-DC01 uses its own local DNS service as its client resolver.
-- CORP-DC01 is authoritative for `corp.example.test`.
-- Active Directory SRV records are registered and resolve successfully.
-- External names are forwarded to the approved existing infrastructure resolver.
-- No public resolver is configured directly on the Domain Controller's network adapter.
+- CORP-DC01 and CORP-DC02 host Active Directory-integrated DNS.
+- The corporate VNet uses the Domain Controllers as custom DNS after both are healthy.
+- Corporate members use only the internal AD DNS tier for private directory discovery.
+- External recursion is handled through documented DNS forwarding.
+- Partner DNS remains authoritative for its own forest and uses conditional forwarding across approved VNet peering for cross-forest discovery.
+- Reverse zones correspond to the Azure subnet prefixes actually used.
 
-Current two-controller state:
+## Time-Service Plan
 
-- CORP-DC01 and CORP-DC02 both host Active Directory-integrated DNS.
-- Each Domain Controller prefers the other controller for DNS and retains itself as alternate.
-- Direct DNS validation against CORP-DC02 returns Domain Controller discovery records for both replicas.
-- Corporate member systems will use the two internal Domain Controllers as their DNS servers.
+- CORP-NTP01 and CORP-NTP02 run RHEL 9 and chrony.
+- Each time server synchronizes independently to approved NIST public NTP sources.
+- The forest-root PDC Emulator uses the two internal NTP servers.
+- Other Windows Domain Controllers and members follow the normal Active Directory domain time hierarchy.
+- The NTP tier remains standalone so directory-authentication trouble does not remove the authoritative internal time source.
 
-Planned time-service state:
+## DHCP Principle
 
-- CORP-NTP01 and CORP-NTP02 will use reserved static IPv4 addresses and remain standalone Rocky Linux infrastructure servers.
-- They will resolve their approved public NTP upstream through the existing infrastructure resolver rather than depending on Active Directory DNS.
-- The forest-root PDC Emulator will use the internal NTP pair.
-- Other Windows Domain Controllers and members will continue to use the Active Directory domain time hierarchy.
+Azure Virtual Network supplies address configuration to Azure VM interfaces. Windows DHCP is therefore not the source of ordinary Azure VM NIC addressing.
 
-## DHCP Plan
-
-The existing DHCP service observed during bootstrap is not the final lab DHCP design.
-
-The finished environment will use two dedicated Windows DHCP servers with failover.
-
-The future corporate client scope will remain inactive until:
-
-- the lab DHCP authority is approved,
-- address exclusions and reservations are confirmed,
-- conflict checks are complete, and
-- the existing infrastructure DHCP boundary is understood.
-
-## Address Management Principle
-
-Infrastructure systems use reserved static addressing because services such as Active Directory, DNS, DHCP, certificate services, file services, and management tooling require predictable endpoints.
-
-Client systems can use DHCP once the authorized scope and failover configuration are in place.
+A later optional Windows DHCP exercise will demonstrate role administration and failover using an appropriate relay/nested scenario rather than falsely representing Windows DHCP as the Azure VNet address authority.
