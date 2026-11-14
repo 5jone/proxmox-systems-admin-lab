@@ -1,106 +1,136 @@
-# Proxmox Systems Administration Lab
+# Azure Cloud Engineering + Systems Administration Lab
 
-Hands-on systems administration portfolio lab built on Proxmox VE to practice Windows Server, Linux, networking, identity, infrastructure services, automation, security hardening, validation, and operational documentation.
+Hands-on cloud engineering and systems administration portfolio project built around Microsoft Azure, Windows Server, Red Hat Enterprise Linux (RHEL), Rocky Linux, identity, networking, security, automation, monitoring, backup, and recovery.
 
 **Interview-facing portfolio site:** https://5jone.github.io/proxmox-systems-admin-lab/
 
-This public repository is intentionally sanitized. Exact host IP addresses, gateway addresses, DNS resolver addresses, MAC addresses, and other live environment identifiers are omitted while preserving the technical design and validation process.
+> The repository name is retained for continuity with Phase 0. The authoritative active build has moved to Microsoft Azure.
 
-## Current Architecture
+This public repository is intentionally sanitized. Exact subscription identifiers, tenant identifiers, public/private IP addresses, credentials, MAC addresses, recovery secrets, and other live environment identifiers are omitted while preserving the technical design and validation process.
 
-- Hypervisor: Proxmox VE
-- Primary lab attachment: administrator-managed `EOVLAN` VNet
-- VLAN: 152
-- Endpoint network: assigned private /24 subnet
-- Guest NIC VLAN tag: blank by design because VLAN membership is provided by the VNet
-- Current identity tier: `CORP-DC01` and `CORP-DC02`
-- Operating system: Windows Server 2022 Standard Desktop Experience
-- Current role: redundant Active Directory Domain Services (AD DS) Domain Controllers and Active Directory-integrated DNS servers
-- Forest / domain: `corp.example.test`
-- NetBIOS name: `CORP`
-- Current time hierarchy: CORP-DC02 follows the Active Directory domain hierarchy through the forest-root PDC Emulator
-- Next infrastructure milestone: redundant Rocky Linux 9 NTP servers using chrony, feeding the forest-root PDC Emulator
+## Project Evolution
 
-The existing environment still provides the off-subnet gateway and the approved upstream DNS resolver. CORP-DC01 now uses its own internal DNS service for Active Directory resolution and forwards unresolved external queries to the approved upstream resolver.
+### Phase 0 — Proxmox systems administration foundation — Complete
+
+The first phase established and validated a traditional virtualization baseline:
+
+- Windows Server 2022 virtual machines on Proxmox VE
+- `CORP-DC01` and `CORP-DC02`
+- Active Directory Domain Services (AD DS)
+- Active Directory-integrated Domain Name System (DNS)
+- Global Catalog redundancy
+- SYSVOL / NETLOGON validation
+- Active Directory replication validation
+- Windows domain time hierarchy
+- troubleshooting and recovery evidence
+
+The Phase 0 build logs remain part of the portfolio because they demonstrate hypervisor administration, Windows deployment, Active Directory troubleshooting, and evidence-driven validation.
+
+### Phase 1 — Azure cloud engineering build — Active
+
+The environment is now being rebuilt cleanly in Microsoft Azure rather than copying the Proxmox VM disks. The rebuild is deliberate: it preserves the systems-administration learning while adding cloud networking, governance, secure management, monitoring, backup, automation, and cost controls.
+
+## Authoritative Azure Architecture
+
+- Cloud platform: Microsoft Azure
+- Primary region: East US 2, subject to SKU/quota availability
+- Resource organization: dedicated lab resource group
+- Corporate VNet: segmented private address space with dedicated core, management, client, and workload subnets
+- Workload exposure: no public IP addresses on ordinary servers
+- Administration: Azure Bastion Developer where supported, plus Azure-native recovery/management paths
+- Network policy: Network Security Groups (NSGs) plus guest firewalls
+- Windows identity tier: redundant Windows Server 2022 Domain Controllers
+- Linux time tier: redundant RHEL 9 servers running chrony
+- Linux application/admin practice: Rocky Linux 9
+- Backup: Azure Backup
+- Monitoring: Azure Monitor + Log Analytics + Azure Monitor Agent
+- Patching: Azure Update Manager
+- Security baseline: Trusted Launch / Secure Boot / vTPM where supported
+- Cost governance: budget alerts, auto-shutdown, and deliberate VM deallocation
+- Infrastructure as Code progression: Azure Portal → Azure CLI → Bicep → Terraform
 
 ## Current Milestones
 
 | Milestone | Status |
 | --- | --- |
-| CORP-DC01 virtual machine created | Complete |
-| Windows Server 2022 installed | Complete |
-| VirtIO drivers installed | Complete |
-| QEMU Guest Agent installed and validated | Complete |
-| CORP-DC01 attached to EOVLAN | Complete |
-| Proxmox and Windows NIC identity matched | Complete |
-| Static IPv4 configuration applied | Complete |
-| Default gateway path validated | Complete |
-| Bootstrap DNS resolution validated | Complete |
-| Outbound TCP/443 connectivity validated | Complete |
-| Windows patching completed before promotion | Complete |
-| CORP-DC01 memory increased to 8 GiB fixed | Complete |
-| AD DS role installed | Complete |
-| New forest and root domain created | Complete |
-| DNS installed on CORP-DC01 | Complete |
-| AD SRV discovery validated | Complete |
-| External DNS forwarding validated | Complete |
-| CORP-DC02 virtual machine provisioned | Complete |
-| Windows Server 2022 installation on CORP-DC02 | Complete |
-| CORP-DC02 replica promotion and replication validation | Complete |
-| CORP-DC02 DNS, SYSVOL, NETLOGON, and domain-time validation | Complete |
-| CORP-NTP01 / CORP-NTP02 Rocky Linux time tier | Next |
+| Phase 0 CORP-DC01 build and validation | Complete |
+| Phase 0 CORP-DC02 promotion and replication validation | Complete |
+| Phase 0 DNS, SYSVOL/NETLOGON, and domain-time validation | Complete |
+| Azure migration architecture and build guide | Complete |
+| Azure resource group + cost guardrails | Next |
+| Corporate Azure VNet / subnet segmentation | Planned |
+| Secure Azure management path | Planned |
+| Azure CORP-DC01 / CORP-DC02 rebuild | Planned |
+| RHEL 9 CORP-NTP01 / CORP-NTP02 time tier | Planned |
+| Azure Monitor / Backup / Update Manager | Planned |
+| Azure partner VNet / forest trust | Planned |
+| Bicep / Terraform implementation | Planned |
+
+## Why the Project Moved
+
+The original shared virtualization environment was valuable for learning the fundamentals, but it also introduced constraints that were unrelated to the target career path. Rebuilding the same enterprise services in Azure creates a stronger cloud-engineering project:
+
+- real cloud virtual networking and segmentation
+- Azure-native security boundaries
+- managed disks and cloud VM lifecycle
+- secure private administration
+- explicit outbound/egress design
+- Azure monitoring and backup
+- cost management
+- Role-Based Access Control (RBAC) and policy
+- Infrastructure as Code
+- multi-VNet and optional multi-region design
 
 ## Validation Approach
 
-Configuration is not treated as complete until it is verified.
+Configuration is not treated as complete until behavior is proven. Evidence includes:
 
-For CORP-DC01, validation has included:
+- platform configuration
+- operating-system state
+- DNS and service discovery
+- replication health
+- allowed and denied network transactions
+- backup and restore tests
+- patching results
+- monitoring/alert evidence
+- failure injection and rollback
+- cost and lifecycle controls
+- repeatable automation
 
-- Confirming the Windows VirtIO network adapter was detected correctly.
-- Matching the virtual NIC identity between Proxmox and Windows.
-- Observing the initial DHCP-provided network configuration before moving to static addressing.
-- Disabling DHCP and confirming the previous lease was removed.
-- Applying the reserved static configuration.
-- Confirming the Windows address state became `Preferred`.
-- Validating gateway reachability and outbound HTTPS connectivity.
-- Completing Windows servicing before directory promotion.
-- Confirming the promoted domain reports the expected DNS root, functional level, and PDC Emulator.
-- Verifying the LDAP Domain Controller discovery SRV record resolves to CORP-DC01.
-- Verifying external DNS resolution through the configured forwarder.
-- Promoting CORP-DC02 as an additional Domain Controller and DNS server.
-- Verifying both controllers are Global Catalog servers.
-- Verifying Active Directory replication reports zero failures.
-- Verifying SYSVOL and NETLOGON are published on CORP-DC02.
-- Querying CORP-DC02 directly for LDAP Domain Controller SRV records and confirming both controllers are returned.
-- Configuring reciprocal Domain Controller DNS-client order for resolver redundancy.
-- Returning CORP-DC02 to the Active Directory domain time hierarchy and confirming CORP-DC01 is its active source.
-
-See [CORP-DC01 build log](build-logs/CORP-DC01.md) and [CORP-DC02 build log](build-logs/CORP-DC02.md) for the detailed implementation records.
+Phase 0 remains documented as completed evidence. Phase 1 evidence is added only as Azure resources are actually built and validated.
 
 ## Repository Structure
 
 - `docs/` — GitHub Pages interview-facing presentation site
-- `build-logs/` — chronological implementation records
+- `build-logs/` — chronological implementation and troubleshooting records
 - `inventory/` — sanitized server, network, and logical addressing documentation
-- `screenshots/` — implementation and validation evidence
-- `ansible/` — future Linux configuration automation
-- `terraform/` — future Proxmox infrastructure automation
-- `diagrams/` — architecture and topology diagrams
+- `screenshots/` — selected implementation and validation evidence
+- `ansible/` — Linux configuration automation
+- `terraform/` — Azure Infrastructure as Code as the project reaches that phase
+- `diagrams/` — current architecture and topology diagrams
 
 ## Planned Technical Scope
 
-The lab is being expanded to demonstrate:
+The active Azure lab is designed to demonstrate:
 
+- Microsoft Azure infrastructure administration
 - Active Directory Domain Services (AD DS)
 - Domain Name System (DNS)
-- Dynamic Host Configuration Protocol (DHCP) and failover
+- Windows Server administration
+- RHEL 9 and Rocky Linux 9 administration
+- Network Time Protocol (NTP) / chrony
+- Azure Virtual Networks and subnet segmentation
+- Network Security Groups (NSGs)
+- Azure Bastion
+- Azure Backup
+- Azure Monitor and Log Analytics
+- Azure Update Manager
+- Role-Based Access Control (RBAC)
+- Azure Policy
 - Group Policy
 - file services and permissions
 - Public Key Infrastructure (PKI)
-- Linux administration and directory integration
-- patching and monitoring
-- backup and recovery
 - Security Technical Implementation Guide (STIG) hardening
-- SCAP Compliance Checker (SCC) validation
 - vulnerability remediation
-- PowerShell, Bash, Ansible, and Terraform automation
+- PowerShell, Bash, Ansible, Azure CLI, Bicep, and Terraform
+- optional VNet peering, partner forest, and second-region AD site exercises
