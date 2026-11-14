@@ -1,89 +1,60 @@
 # Network Inventory
 
-This public inventory documents the network design while intentionally omitting exact live IP addresses and other unnecessary environment identifiers.
+This public inventory documents the Azure network design while intentionally omitting live addresses and account-specific identifiers.
 
-## Primary Lab Network
+## Active Cloud Network
 
-| Item | Value |
+| Item | Design |
 | --- | --- |
-| Proxmox VNet | `EOVLAN` |
-| VLAN ID | `152` |
-| Endpoint network | Assigned private /24 subnet |
-| Default gateway | Existing infrastructure gateway |
-| Domain Controller DNS clients | Reciprocal internal resolver order: each controller prefers the other and retains itself as alternate |
-| External DNS path | Forwarded to approved infrastructure resolver |
-| Windows time path | Non-PDC systems follow the Active Directory domain hierarchy |
-| Planned internal NTP tier | CORP-NTP01 and CORP-NTP02 on Rocky Linux 9 / chrony |
-| Guest NIC VLAN tag | Blank |
-| Current attached servers | `CORP-DC01`; `CORP-DC02` promoted and validated |
+| Cloud platform | Microsoft Azure |
+| Primary region | East US 2, subject to quota/SKU availability |
+| Corporate VNet | Dedicated private corporate VNet |
+| Corporate segmentation | Core, management, client, and workload subnets |
+| Workload public IPs | None by default |
+| Administration | Azure Bastion Developer where supported |
+| Network policy | Subnet/NIC NSGs plus guest firewalls |
+| Corporate DNS | CORP-DC01 / CORP-DC02 after AD DNS is healthy |
+| Internal time | CORP-NTP01 / CORP-NTP02 on RHEL 9 / chrony |
+| Backup | Azure Backup |
+| Monitoring | Azure Monitor + Log Analytics |
+| Patching | Azure Update Manager |
+| Planned partner boundary | Separate non-overlapping partner VNet + peering |
+| Optional branch boundary | Temporary second-region VNet for real AD site practice |
 
-## Design Notes
+## Network Design Principles
 
-### EOVLAN and VLAN 152
+### Segmentation
 
-The environment administrator confirmed that VLAN 152 is already mapped to the Proxmox `EOVLAN` VNet.
+The corporate address space is divided into dedicated subnets rather than recreating the original single Layer-2 Proxmox network. This creates real cloud routing and policy boundaries while keeping all corporate systems inside one logical private environment.
 
-Lab VMs therefore attach directly to EOVLAN and leave the Proxmox guest NIC VLAN tag field blank.
+### Private Administration
 
-The VLAN ID and the IPv4 subnet represent different layers of the design:
+Ordinary servers do not receive public IP addresses. Administrative access is provided through Azure Bastion Developer where supported or another documented Azure-native management/recovery path.
 
-- VLAN 152 defines Layer 2 network membership.
-- The assigned private /24 defines Layer 3 endpoint addressing.
+### Azure Address Assignment
 
-### Gateway
+Infrastructure addresses are reserved at the Azure NIC layer. The guest operating system remains DHCP-managed so Azure supplies the platform gateway and interface configuration.
 
-The primary lab network uses an existing infrastructure gateway for off-subnet communication.
+### DNS
 
-The Proxmox host is not the guest default gateway, and the optional lab firewall is not currently in the primary endpoint path.
+After the Azure Domain Controllers are healthy, the corporate VNet uses the internal AD DNS servers as custom DNS. Cross-forest name resolution is handled with conditional forwarders across explicitly permitted VNet peering.
 
-### Bootstrap DHCP and DNS
+### Time
 
-During the initial CORP-DC01 deployment, the existing environment supplied a temporary DHCP lease along with gateway and DNS information.
+The authoritative internal time tier is two standalone RHEL 9 servers running chrony. Those servers synchronize to approved NIST upstream sources. The forest-root PDC Emulator uses the internal pair, and other Windows systems use the AD domain hierarchy.
 
-That service was useful for initial connectivity validation but is not the final lab-managed identity design.
+### Outbound Connectivity
 
-CORP-DC01 was subsequently moved to its reserved static configuration.
+Outbound access is an explicit design decision. The lab will first document the actual Azure default behavior and later implement an Azure NAT Gateway exercise for deterministic production-style egress when the cost/learning value justifies it.
 
-### Current Active Directory DNS design
+### Partner Network
 
-CORP-DC01 is now authoritative for the `corp.example.test` Active Directory namespace and uses its own DNS service as its client resolver.
+The partner forest is placed in a separate non-overlapping VNet. VNet peering and NSGs permit only the DNS, trust, authentication, and resource flows required by the exercise.
 
-Internal Active Directory records are resolved locally. Queries for namespaces the server is not authoritative for are forwarded to the approved existing infrastructure resolver.
+### Optional Second Region
 
-This separates two responsibilities:
+A temporary second-region VNet can be created later to demonstrate a genuine Active Directory Branch site, global VNet peering, and intersite replication behavior.
 
-- internal Active Directory name and service discovery, handled by CORP-DC01;
-- external name resolution, handled through the configured forwarder.
+## Phase 0 Network Evidence
 
-CORP-DC02 is now promoted and healthy. Both Domain Controllers host Active Directory-integrated DNS, and each controller prefers the other for DNS resolution while retaining itself as alternate. Corporate systems use the internal Domain Controllers for Active Directory DNS rather than public resolvers.
-
-### Current Active Directory time design
-
-CORP-DC02 is configured to use the Active Directory domain time hierarchy and currently synchronizes through the forest-root PDC Emulator.
-
-The next infrastructure milestone adds two standalone Rocky Linux 9 chrony servers. They will synchronize independently to the approved NIST public time service. The forest-root PDC Emulator will then use that internal pair, while other Windows systems remain on the domain hierarchy.
-
-### Future DHCP design
-
-The completed lab will use dedicated Windows DHCP servers with failover.
-
-Until those services are deployed and authorized, the existing infrastructure DHCP service should be understood as a bootstrap dependency rather than lab-managed DHCP.
-
-## Current Validation
-
-The current two-controller environment has demonstrated:
-
-- Layer 2 attachment through EOVLAN.
-- Correct guest-side VLAN handling.
-- Valid static addressing on the assigned private subnet.
-- Reachability through the existing gateway.
-- Successful AD DS forest creation.
-- Two healthy Domain Controllers and Global Catalog servers.
-- Zero failures in the Active Directory replication summary.
-- SYSVOL and NETLOGON publication on CORP-DC02.
-- Active Directory-integrated DNS on both Domain Controllers.
-- LDAP Domain Controller SRV discovery from CORP-DC02 returning both replicas.
-- Reciprocal Domain Controller DNS-client configuration.
-- CORP-DC02 synchronization through the Active Directory domain time hierarchy.
-- Successful external DNS forwarding.
-- Outbound TCP port 443 connectivity.
+The original Proxmox VLAN/VNet configuration is preserved only in Phase 0 build logs as historical evidence. It is not the active network architecture for the Azure phase.
