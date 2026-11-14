@@ -10,7 +10,9 @@ Exact IP addresses are intentionally omitted. The purpose of this file is to doc
 | --- | --- | --- | --- |
 | Existing infrastructure | Pre-existing | Gateway, bootstrap DHCP, and approved upstream DNS forwarding target | Existing |
 | CORP-DC01 | Reserved static IPv4 | First Domain Controller and authoritative DNS server | Active / promoted |
-| CORP-DC02 | Reserved static IPv4 | Second Domain Controller and DNS replica | VM provisioned / address not yet applied |
+| CORP-DC02 | Reserved static IPv4 | Second Domain Controller, DNS replica, and Global Catalog | Active / promoted |
+| CORP-NTP01 | Reserved static IPv4 | Internal Rocky Linux chrony/NTP server | Planned / next |
+| CORP-NTP02 | Reserved static IPv4 | Redundant Rocky Linux chrony/NTP server | Planned / next |
 | PARTNER-DC01 | Reserved static IPv4 | Partner directory services | Planned |
 | BRANCH-DC01 | Reserved static IPv4 | Additional Domain Controller / replica role | Planned |
 | CORP-FS01 | Reserved static IPv4 | File services | Planned |
@@ -38,11 +40,19 @@ Current state:
 - External names are forwarded to the approved existing infrastructure resolver.
 - No public resolver is configured directly on the Domain Controller's network adapter.
 
-Planned next state:
+Current two-controller state:
 
-- CORP-DC02 has been provisioned and will use CORP-DC01 for DNS after Windows installation and before domain join/promotion.
-- CORP-DC02 will also host DNS after promotion.
-- Once both Domain Controllers are healthy, corporate member systems will use the two internal Domain Controllers as their DNS servers.
+- CORP-DC01 and CORP-DC02 both host Active Directory-integrated DNS.
+- Each Domain Controller prefers the other controller for DNS and retains itself as alternate.
+- Direct DNS validation against CORP-DC02 returns Domain Controller discovery records for both replicas.
+- Corporate member systems will use the two internal Domain Controllers as their DNS servers.
+
+Planned time-service state:
+
+- CORP-NTP01 and CORP-NTP02 will use reserved static IPv4 addresses and remain standalone Rocky Linux infrastructure servers.
+- They will resolve their approved public NTP upstream through the existing infrastructure resolver rather than depending on Active Directory DNS.
+- The forest-root PDC Emulator will use the internal NTP pair.
+- Other Windows Domain Controllers and members will continue to use the Active Directory domain time hierarchy.
 
 ## DHCP Plan
 
