@@ -1,58 +1,40 @@
 # Server Inventory
 
-This public inventory records deployed systems and roles without exposing exact live IP addresses or other unnecessary environment identifiers.
+This public inventory records the project systems and roles without publishing live Azure addresses, subscription identifiers, credentials, or other unnecessary environment details.
 
-| Hostname | Operating System | Role | Network | Addressing | Status |
-| --- | --- | --- | --- | --- | --- |
-| CORP-DC01 | Windows Server 2022 Standard Desktop Experience | First AD DS Domain Controller and authoritative DNS server | EOVLAN / VLAN 152 | Reserved static IPv4 | Promoted and validated |
-| CORP-DC02 | Windows Server 2022 Standard Desktop Experience | Replica AD DS Domain Controller, DNS server, and Global Catalog | EOVLAN / VLAN 152 | Reserved static IPv4 | Promoted and validated |
-| CORP-NTP01 | Rocky Linux 9 planned | Internal NTP server using chrony | EOVLAN / VLAN 152 | Reserved static IPv4 planned | Next |
-| CORP-NTP02 | Rocky Linux 9 planned | Redundant internal NTP server using chrony | EOVLAN / VLAN 152 | Reserved static IPv4 planned | Next |
+## Phase 0 — Proxmox Evidence
 
-## CORP-DC01 Notes
+| Hostname | Operating System | Role | Platform | Status |
+| --- | --- | --- | --- | --- |
+| CORP-DC01 | Windows Server 2022 | First AD DS Domain Controller and DNS server | Proxmox VE | Completed and validated |
+| CORP-DC02 | Windows Server 2022 | Replica AD DS Domain Controller, DNS, Global Catalog | Proxmox VE | Completed and validated |
 
-- Hypervisor: Proxmox VE
-- CPU: 2 virtual cores
-- Memory: 8 GiB fixed
-- Memory ballooning: disabled
-- Network adapter model: VirtIO
-- Guest VLAN tag: blank because VLAN 152 is already mapped to EOVLAN
-- Gateway: existing infrastructure gateway
-- DNS client: local CORP-DC01 DNS service
-- DNS forwarding: approved existing infrastructure resolver
-- Forest / domain: `corp.example.test`
-- NetBIOS name: `CORP`
-- Current FSMO validation: CORP-DC01 holds the PDC Emulator role
-- Next role milestone: deploy and promote CORP-DC02 as a replica Domain Controller and DNS server
+The Phase 0 systems are retained as historical portfolio evidence. They are not the authoritative active lab platform after the Azure migration decision.
 
-## CORP-DC02 Notes
+## Phase 1 — Azure Target Inventory
 
-- Hypervisor: Proxmox VE
-- Machine: q35
-- Firmware: OVMF / UEFI
-- CPU: 2 virtual cores using host CPU type
-- Memory: 8 GiB fixed
-- Memory ballooning: disabled
-- Disk controller: VirtIO SCSI Single
-- System disk: 64 GiB qcow2
-- Network adapter model: VirtIO
-- Guest VLAN tag: blank because VLAN 152 is already mapped to EOVLAN
-- AD DS role: additional Domain Controller in `corp.example.test`
-- DNS role: Active Directory-integrated DNS
-- Global Catalog: enabled
-- Replication: validated with zero failures in the replication summary
-- SYSVOL / NETLOGON: published
-- DNS-client order: prefers CORP-DC01, then itself
-- Time: follows the Active Directory domain hierarchy through the forest-root PDC Emulator
-- Proxmox HA: not enabled
+| Hostname | Operating System | Role | Azure placement | Status |
+| --- | --- | --- | --- | --- |
+| CORP-DC01 | Windows Server 2022 Datacenter: Azure Edition | AD DS / DNS / forest-root role owner | Corporate core subnet | Planned rebuild |
+| CORP-DC02 | Windows Server 2022 Datacenter: Azure Edition | Replica AD DS / DNS / Global Catalog | Corporate core subnet | Planned rebuild |
+| CORP-NTP01 | RHEL 9 PAYG | Internal NTP / chrony | Corporate core subnet | Planned |
+| CORP-NTP02 | RHEL 9 PAYG | Redundant internal NTP / chrony | Corporate core subnet | Planned |
+| CORP-FS01 | Windows Server 2022 | File services | Corporate core subnet | Planned |
+| CORP-CA01 | Windows Server 2022 | AD CS / PKI | Corporate core subnet | Planned |
+| CORP-OPS01 | Windows Server 2022 | Operations services | Corporate core subnet | Planned |
+| CORP-ADM01 | Windows Server 2022 | Administrative management host | Management subnet | Planned |
+| CORP-CL01 | Windows client when licensed, otherwise disposable member server | Domain/client policy testing | Client subnet | Planned |
+| ROCKY-APP01 | Rocky Linux 9 | Linux application / SELinux / service administration | Workload subnet | Planned |
+| PARTNER-DC01 | Windows Server 2022 | Partner forest Domain Controller / DNS | Separate partner VNet | Planned |
+| PARTNER-CL01 | Windows client/member | Partner forest access testing | Separate partner VNet | Planned |
 
-## CORP-NTP01 / CORP-NTP02 Planned Notes
+## Azure Baseline Principles
 
-- Operating system: Rocky Linux 9
-- Service: chrony / NTP
-- Design: two independent internal time servers
-- Upstream: approved NIST public time service
-- Consumers: forest-root PDC Emulator uses the internal pair; non-PDC Windows systems remain on the Active Directory domain hierarchy
-- Directory dependency: time servers remain standalone so internal time can remain available during directory-authentication trouble
-- Next validation: upstream reachability, chrony source health, PDC source selection, and one-server failover
-
+- No ordinary workload VM receives a public IP address.
+- Infrastructure private addresses are reserved at the Azure NIC layer.
+- Guest network interfaces remain DHCP-managed so Azure can supply the platform gateway and network configuration.
+- Domain members use the AD DNS tier.
+- RHEL NTP servers remain independent of AD DNS where practical and use the Azure-provided resolver path for public upstream lookup.
+- Trusted Launch, Secure Boot, and virtual TPM are used where supported.
+- Auto-shutdown and explicit deallocation are part of normal lab operations.
+- Backups, monitoring, and patch management are Azure-native services once those chapters are implemented.
