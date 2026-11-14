@@ -13,11 +13,13 @@ This public repository is intentionally sanitized. Exact host IP addresses, gate
 - VLAN: 152
 - Endpoint network: assigned private /24 subnet
 - Guest NIC VLAN tag: blank by design because VLAN membership is provided by the VNet
-- Current identity server: `CORP-DC01`
+- Current identity tier: `CORP-DC01` and `CORP-DC02`
 - Operating system: Windows Server 2022 Standard Desktop Experience
-- Current role: first Active Directory Domain Services (AD DS) Domain Controller and authoritative DNS server
+- Current role: redundant Active Directory Domain Services (AD DS) Domain Controllers and Active Directory-integrated DNS servers
 - Forest / domain: `corp.example.test`
 - NetBIOS name: `CORP`
+- Current time hierarchy: CORP-DC02 follows the Active Directory domain hierarchy through the forest-root PDC Emulator
+- Next infrastructure milestone: redundant Rocky Linux 9 NTP servers using chrony, feeding the forest-root PDC Emulator
 
 The existing environment still provides the off-subnet gateway and the approved upstream DNS resolver. CORP-DC01 now uses its own internal DNS service for Active Directory resolution and forwards unresolved external queries to the approved upstream resolver.
 
@@ -43,8 +45,10 @@ The existing environment still provides the off-subnet gateway and the approved 
 | AD SRV discovery validated | Complete |
 | External DNS forwarding validated | Complete |
 | CORP-DC02 virtual machine provisioned | Complete |
-| Windows Server 2022 installation on CORP-DC02 | Next |
-| CORP-DC02 replica promotion and replication validation | Planned |
+| Windows Server 2022 installation on CORP-DC02 | Complete |
+| CORP-DC02 replica promotion and replication validation | Complete |
+| CORP-DC02 DNS, SYSVOL, NETLOGON, and domain-time validation | Complete |
+| CORP-NTP01 / CORP-NTP02 Rocky Linux time tier | Next |
 
 ## Validation Approach
 
@@ -63,8 +67,15 @@ For CORP-DC01, validation has included:
 - Confirming the promoted domain reports the expected DNS root, functional level, and PDC Emulator.
 - Verifying the LDAP Domain Controller discovery SRV record resolves to CORP-DC01.
 - Verifying external DNS resolution through the configured forwarder.
+- Promoting CORP-DC02 as an additional Domain Controller and DNS server.
+- Verifying both controllers are Global Catalog servers.
+- Verifying Active Directory replication reports zero failures.
+- Verifying SYSVOL and NETLOGON are published on CORP-DC02.
+- Querying CORP-DC02 directly for LDAP Domain Controller SRV records and confirming both controllers are returned.
+- Configuring reciprocal Domain Controller DNS-client order for resolver redundancy.
+- Returning CORP-DC02 to the Active Directory domain time hierarchy and confirming CORP-DC01 is its active source.
 
-See [CORP-DC01 build log](build-logs/CORP-DC01.md) for the detailed implementation record.
+See [CORP-DC01 build log](build-logs/CORP-DC01.md) and [CORP-DC02 build log](build-logs/CORP-DC02.md) for the detailed implementation records.
 
 ## Repository Structure
 
