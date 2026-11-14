@@ -10,10 +10,12 @@ This public inventory documents the network design while intentionally omitting 
 | VLAN ID | `152` |
 | Endpoint network | Assigned private /24 subnet |
 | Default gateway | Existing infrastructure gateway |
-| CORP-DC01 DNS client | Local authoritative DNS service |
+| Domain Controller DNS clients | Reciprocal internal resolver order: each controller prefers the other and retains itself as alternate |
 | External DNS path | Forwarded to approved infrastructure resolver |
+| Windows time path | Non-PDC systems follow the Active Directory domain hierarchy |
+| Planned internal NTP tier | CORP-NTP01 and CORP-NTP02 on Rocky Linux 9 / chrony |
 | Guest NIC VLAN tag | Blank |
-| Current attached servers | `CORP-DC01`; `CORP-DC02` VM provisioned |
+| Current attached servers | `CORP-DC01`; `CORP-DC02` promoted and validated |
 
 ## Design Notes
 
@@ -53,7 +55,13 @@ This separates two responsibilities:
 - internal Active Directory name and service discovery, handled by CORP-DC01;
 - external name resolution, handled through the configured forwarder.
 
-CORP-DC02 has now been provisioned on EOVLAN. After Windows installation, it will use CORP-DC01 for DNS during domain discovery and promotion. After both controllers are operational, corporate systems will use the internal Domain Controllers as their DNS servers.
+CORP-DC02 is now promoted and healthy. Both Domain Controllers host Active Directory-integrated DNS, and each controller prefers the other for DNS resolution while retaining itself as alternate. Corporate systems use the internal Domain Controllers for Active Directory DNS rather than public resolvers.
+
+### Current Active Directory time design
+
+CORP-DC02 is configured to use the Active Directory domain time hierarchy and currently synchronizes through the forest-root PDC Emulator.
+
+The next infrastructure milestone adds two standalone Rocky Linux 9 chrony servers. They will synchronize independently to the approved NIST public time service. The forest-root PDC Emulator will then use that internal pair, while other Windows systems remain on the domain hierarchy.
 
 ### Future DHCP design
 
@@ -63,14 +71,19 @@ Until those services are deployed and authorized, the existing infrastructure DH
 
 ## Current Validation
 
-CORP-DC01 has demonstrated:
+The current two-controller environment has demonstrated:
 
 - Layer 2 attachment through EOVLAN.
 - Correct guest-side VLAN handling.
 - Valid static addressing on the assigned private subnet.
 - Reachability through the existing gateway.
 - Successful AD DS forest creation.
-- Successful authoritative DNS operation for the lab domain.
-- Successful LDAP Domain Controller SRV discovery.
+- Two healthy Domain Controllers and Global Catalog servers.
+- Zero failures in the Active Directory replication summary.
+- SYSVOL and NETLOGON publication on CORP-DC02.
+- Active Directory-integrated DNS on both Domain Controllers.
+- LDAP Domain Controller SRV discovery from CORP-DC02 returning both replicas.
+- Reciprocal Domain Controller DNS-client configuration.
+- CORP-DC02 synchronization through the Active Directory domain time hierarchy.
 - Successful external DNS forwarding.
 - Outbound TCP port 443 connectivity.
