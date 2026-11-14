@@ -45,7 +45,7 @@
           </div>
           <div class="status-line" aria-label="Current project status">
             <span class="status-dot" aria-hidden="true"></span>
-            <span><strong>Current milestone:</strong> CORP-DC01 validated; CORP-DC02 virtual hardware provisioned</span>
+            <span><strong>Current milestone:</strong> two-controller AD core validated; redundant Rocky Linux NTP tier next</span>
           </div>
         </div>
 
@@ -101,7 +101,7 @@
           </p>
         </div>
 
-        <div class="architecture" role="img" aria-label="Sanitized architecture showing Proxmox VE connected to EOVLAN, CORP-DC01, a planned CORP-DC02 replica, and approved upstream infrastructure for off-subnet and forwarded DNS traffic.">
+        <div class="architecture" role="img" aria-label="Sanitized architecture showing Proxmox VE connected to EOVLAN, two validated Active Directory Domain Controllers, and approved upstream infrastructure. A redundant Rocky Linux NTP tier is the next infrastructure milestone.">
           <div class="arch-node arch-platform">
             <span class="arch-label">Virtualization</span>
             <strong>Proxmox VE</strong>
@@ -120,10 +120,10 @@
               <strong>CORP-DC01</strong>
               <small>AD DS · DNS · PDC Emulator</small>
             </div>
-            <div class="arch-node arch-planned">
-              <span class="arch-label">In progress</span>
+            <div class="arch-node arch-active">
+              <span class="arch-label">Validated</span>
               <strong>CORP-DC02</strong>
-              <small>VM provisioned · Windows Server install next</small>
+              <small>AD DS · DNS · Global Catalog · replica</small>
             </div>
           </div>
           <div class="arch-upstream">
@@ -149,10 +149,11 @@
       <div class="shell">
         <div class="section-heading">
           <p class="eyebrow">Completed Milestone</p>
-          <h2 id="milestone-title">CORP-DC01 — first Domain Controller</h2>
+          <h2 id="milestone-title">Two-controller Active Directory core</h2>
           <p>
-            Windows Server 2022 was built, patched, promoted into a new Active Directory forest,
-            and validated as the authoritative DNS server for the lab domain.
+            CORP-DC01 and CORP-DC02 now provide a replicated Windows Server 2022 identity and DNS tier.
+            Directory replication, Global Catalog capability, SYSVOL/NETLOGON, DNS service discovery,
+            reciprocal DNS resolution, and domain-hierarchy time synchronization have been validated.
           </p>
         </div>
 
@@ -174,13 +175,14 @@
           </article>
           <article class="card">
             <span class="card-number">04</span>
-            <h3>Service discovery</h3>
-            <p>Validated LDAP Domain Controller discovery through Active Directory SRV records instead of relying only on a successful reboot.</p>
+            <h3>Replica validation</h3>
+            <p>Added CORP-DC02, confirmed zero replication failures, verified SYSVOL/NETLOGON, and queried its DNS service directly for both Domain Controller SRV records.</p>
           </article>
         </div>
 
         <div class="evidence-row">
           <a href="https://github.com/5jone/proxmox-systems-admin-lab/blob/main/build-logs/CORP-DC01.md">CORP-DC01 Build Log →</a>
+          <a href="https://github.com/5jone/proxmox-systems-admin-lab/blob/main/build-logs/CORP-DC02.md">CORP-DC02 Build Log →</a>
           <a href="https://github.com/5jone/proxmox-systems-admin-lab/blob/main/inventory/servers.md">Server Inventory →</a>
         </div>
       </div>
@@ -197,7 +199,9 @@
           <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>Virtual NIC identity</h3><p>Matched the Proxmox virtual NIC to the Windows VirtIO adapter before changing network configuration.</p></div></div>
           <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>Static addressing</h3><p>Observed bootstrap DHCP behavior, disabled DHCP, removed the previous lease, and verified the reserved address reached the Windows <code>Preferred</code> state.</p></div></div>
           <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>AD service discovery</h3><p>Queried the LDAP SRV record used to locate Domain Controllers and confirmed CORP-DC01 was advertised correctly.</p></div></div>
-          <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>External DNS forwarding</h3><p>Confirmed public names resolve through the configured forwarder while the Domain Controller remains authoritative for its internal namespace.</p></div></div>
+          <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>Replica health</h3><p>Confirmed both Domain Controllers are Global Catalog servers, replication reports zero failures, and CORP-DC02 publishes SYSVOL and NETLOGON.</p></div></div>
+          <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>DNS replica validation</h3><p>Queried CORP-DC02 directly and confirmed it returns LDAP service records for both Domain Controllers.</p></div></div>
+          <div class="validation-item"><span class="check" aria-hidden="true">✓</span><div><h3>Domain time hierarchy</h3><p>Returned CORP-DC02 to domain-hierarchy synchronization and verified CORP-DC01 is its selected Windows Time source.</p></div></div>
         </div>
       </div>
     </section>
@@ -257,9 +261,11 @@
         </div>
         <div class="roadmap">
           <span class="done">CORP-DC01</span>
-          <span class="active">CORP-DC02 build</span>
-          <span>Group Policy</span>
+          <span class="done">CORP-DC02</span>
+          <span class="active">CORP-NTP01 / CORP-NTP02</span>
+          <span>Administrative workstation</span>
           <span>File services</span>
+          <span>Group Policy</span>
           <span>DHCP failover</span>
           <span>PKI</span>
           <span>Rocky Linux</span>
